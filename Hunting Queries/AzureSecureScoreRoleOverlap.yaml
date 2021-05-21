@@ -1,19 +1,40 @@
-id: AD9CDDB0-6DAA-4616-A397-B9DF7D6082F4
-name: Azure secure score role overlap
+id: 03403091-6916-4C30-A582-3D8039055C76
+name: AzureSecureScoreRoleOverlap
 description: |
-  'This query searches for accounts that have been assigned Global Administrator do not need other roles assigned. 
-    Global Administrators have access to all aspects of Azure'
+  'This query searches for Accounts that have been assigned Global Administrator do not need other roles assigned. 
+   Global Administrators have access to all aspects of Azure.'
+severity: Medium
 requiredDataConnectors:
   - connectorId: SenservaPro
     dataTypes:
       - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
 tactics:
-  - Impact
+  - InitialAccess
 relevantTechniques:
-  - T1529
+  - T1078
+  - T1098
 query: |
-  let timeframe = 14d;
   SenservaPro_CL
-  | where TimeGenerated >= ago(timeframe)
   | where ControlName_s == 'AzureSecureScoreRoleOverlap'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
   

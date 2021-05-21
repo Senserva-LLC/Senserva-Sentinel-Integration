@@ -1,0 +1,39 @@
+id: B3185EB9-3B8D-4880-97C6-1921DA000F68
+name: PIMRoleAssignmentExpiration
+description: |
+  'This query searches for PIM assignment expiration. Setting shorter expiration periods lowers the ability for the role to be misused.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'PIMRoleAssignmentExpiration'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

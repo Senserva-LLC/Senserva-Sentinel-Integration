@@ -1,0 +1,39 @@
+id: C4A234AC-C4EC-4137-B7AD-D4E8CCC817A8
+name: UserLastAccess
+description: |
+  'This query searches for user last access to Azure.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078.004
+  - T1552.005
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'UserLastAccess'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

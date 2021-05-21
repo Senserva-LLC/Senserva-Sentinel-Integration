@@ -1,0 +1,39 @@
+id: AA861B9A-6C46-479F-ADA7-7C116F9FD187
+name: ServicePrincipalPermission
+description: |
+  'This query searches for one or more permissions have been assigned. 
+   A service principal has permissions assigned so it can access a particular set of data.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ServicePrincipalPermission'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

@@ -1,0 +1,40 @@
+id: 88F93702-BD31-49C0-9D21-D0362E6D3B1B
+name: ServicePrincipalDirectUnknownMembership
+description: |
+  'This query searches for this list encompasses the unknown objects 
+   that the Service Principal has Direct Membership to.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ServicePrincipalDirectUnknownMembership'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

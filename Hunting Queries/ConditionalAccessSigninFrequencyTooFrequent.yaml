@@ -1,0 +1,39 @@
+id: 334E7D10-7B24-4F34-BC8C-CF07237BAA70
+name: ConditionalAccessSigninFrequencyTooFrequent
+description: |
+  'This query searches for hours. sign in frequency possibly too short, users may start to fatigue.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1552
+  - T1110
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessSigninFrequencyTooFrequent'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

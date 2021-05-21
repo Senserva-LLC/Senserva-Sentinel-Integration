@@ -1,0 +1,39 @@
+id: 33B2B8A7-29B8-4D0C-9FA7-8996E5AFAA3D
+name: ConditionalAccessAllApps
+description: |
+  'This query searches for rule includes all apps (unless an app is also in excluded list).
+   Make sure this is what is required.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessAllApps'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

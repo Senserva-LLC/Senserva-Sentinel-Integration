@@ -1,0 +1,41 @@
+id: D5B40F7D-EC56-4649-A6CE-4C5E846DB6A1
+name: ConfigurationStateAzureADAdministrativeUnitsList
+description: |
+  'This query searches for Administrative Units are an effective tool to limit the influence of administrative accounts.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1069
+  - T1482
+  - T1484
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADAdministrativeUnitsList'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

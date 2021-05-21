@@ -1,0 +1,42 @@
+id: 1B442A59-77F1-44BC-BB81-EB511CC93097
+name: ConfigurationStateAzureADConnectInUse
+description: |
+  'This query searches for Azure AD connect in use. Azure AD connect is a Microsoft tool to help your organization sync your on-premises server data and configurations to your Azure cloud tenant.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1482
+  - T1484
+  - T1562
+  - T1558
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADConnectInUse'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

@@ -1,0 +1,39 @@
+id: A79ADD57-F364-4AB5-B977-5D3B573EDF58
+name: ApplicationNotUsingSecureReplyURLs
+description: |
+  'This query searches for This application using insecure reply URLs is not OAuth2.0 compliant.
+   Insecure URL(s) do not start with https or msauth.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ApplicationNotUsingSecureReplyURLs'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

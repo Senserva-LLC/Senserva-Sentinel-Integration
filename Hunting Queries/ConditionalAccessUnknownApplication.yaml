@@ -1,0 +1,41 @@
+id: C31503A9-6E94-4D47-9457-42461D26955E
+name: ConditionalAccessUnknownApplication
+description: |
+  'This query searches for Unknown application ID found 
+    when analyzing Conditional Access Policy, 
+    likely from a deleted Application.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+  - T1098.001
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessUnknownApplication'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

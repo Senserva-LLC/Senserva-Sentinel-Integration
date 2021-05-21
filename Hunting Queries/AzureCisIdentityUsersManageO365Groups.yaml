@@ -1,0 +1,40 @@
+id: A8C1DC78-75BD-46EC-8824-E9422A597AED
+name: AzureCisIdentityUsersManageO365Groups
+description: |
+  'This query searches for users should not be able to manage Office 365 groups, 
+   only administrators should have those permissions.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'AzureCisIdentityUsersManageO365Groups'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

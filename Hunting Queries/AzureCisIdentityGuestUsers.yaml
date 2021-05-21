@@ -1,0 +1,41 @@
+id: F0FD57A5-29BD-4C15-ABB6-1E9E1215485F
+name: AzureCisIdentityGuestUsers
+description: |
+  'This query searches for guest accounts are a potential vulnerability in your Azure tenant. 
+   Guest user accounts use should be eliminiated or minimized as much as possible. 
+   Audit guest accounts in your organization at least monthly and remove them when access is no longer needed.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'AzureCisIdentityGuestUsers'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

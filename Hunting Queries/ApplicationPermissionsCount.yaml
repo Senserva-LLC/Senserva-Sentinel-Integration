@@ -1,0 +1,39 @@
+id: F62DA359-70A6-45A9-A63C-F3BA43AA38D0
+name: ApplicationPermissionsCount
+description: |
+  'This query searches for applications with too many permissions can access more security data 
+   than needed for its fucntion. As possible with business needs, review for excess permission granting.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ApplicationPermissionsCount'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

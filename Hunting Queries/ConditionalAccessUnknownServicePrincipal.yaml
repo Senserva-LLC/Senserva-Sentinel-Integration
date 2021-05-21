@@ -1,0 +1,41 @@
+id: 640F8016-5E77-4EFB-9A6A-75F5C497AA4A
+name: ConditionalAccessUnknownServicePrincipal
+description: |
+  'This query searches for unknown service principal ID found 
+   when analyzing Conditional Access Policy, 
+   likely from a deleted service principal.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+  - T1098.001
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessUnknownServicePrincipal'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

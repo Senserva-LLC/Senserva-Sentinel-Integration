@@ -1,0 +1,40 @@
+id: A66E787D-29AA-4651-AA42-F75B8CB5A64B
+name: AzureCisIdentityUserADPortal
+description: |
+  'This query searches for users should not have access to the Azure active directory administration portal, 
+   they could unknowingly add or change other user status.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'AzureCisIdentityUserADPortal'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

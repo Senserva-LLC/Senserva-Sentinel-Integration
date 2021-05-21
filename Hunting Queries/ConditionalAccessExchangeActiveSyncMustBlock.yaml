@@ -1,0 +1,38 @@
+id: 854D20C5-50D7-4714-8EF4-BAD0449C349D
+name: ConditionalAccessExchangeActiveSyncMustBlock
+description: |
+  'This query searches for You must block Exchange Active Sync from Conditional Access policy.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessExchangeActiveSyncMustBlock'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

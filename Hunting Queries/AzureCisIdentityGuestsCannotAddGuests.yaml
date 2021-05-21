@@ -1,0 +1,39 @@
+id: AC6B5A66-32D2-4A01-92E4-85ADCAF2BC79
+name: AzureCisIdentityGuestsCannotAddGuests
+description: |
+  'This query searches for guests should not be able to invite guests into the Azure tenant.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'AzureCisIdentityGuestsCannotAddGuests'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

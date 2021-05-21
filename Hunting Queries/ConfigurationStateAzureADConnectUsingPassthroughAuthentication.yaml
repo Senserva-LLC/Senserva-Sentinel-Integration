@@ -1,0 +1,44 @@
+id: 3B6BD4CB-8A95-461A-867D-02DFC9EBFA18
+name: ConfigurationStateAzureADConnectUsingPassthroughAuthentication
+description: |
+  'This query searches for Azure AD Connect with Passthrough Authentication 
+   will allow users authenticated from your on-premises systems to be authenticated 
+   in your Microsoft 365 environment, potentially bypassing your Microsoft 365 security controls.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1482
+  - T1484
+  - T1558
+  - T1562
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADConnectUsingPassthroughAuthentication'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

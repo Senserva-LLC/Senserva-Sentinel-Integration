@@ -1,0 +1,40 @@
+id: A8305D67-7C26-44FD-B0A9-E3A539EA21C0
+name: ServicePrincipalIsSelectRisk
+description: |
+  'This query searches for an service principal is identified to be of particular concern, 
+   regularly review. Specifically called out for being of particular concern with regards 
+   to Conditional Access.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ServicePrincipalIsSelectRisk'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

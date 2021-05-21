@@ -1,0 +1,40 @@
+id: B84F7769-1C23-4727-8A23-CA11EA324C9B
+name: ConditionalAccessUnknownGroup
+description: |
+  'This query searches for unknown group ID found when analyzing 
+   conditional access policy, likely from a deleted group.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:  
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+  - T1098.001
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessUnknownGroup'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

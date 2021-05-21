@@ -1,0 +1,40 @@
+id: AF1DFC2F-C8B9-41D9-BF46-6454E1D87885
+name: PIMMaximumGrantPeriodInMinutes
+description: |
+  'This query searches for PIM role was granted for the maxmium time limit  minutes. 
+   User has received access for the PIM role assigned for the maximum number of minutes allowed. 
+   Verify that job function is required for that duration of time.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'PIMMaximumGrantPeriodInMinutes'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

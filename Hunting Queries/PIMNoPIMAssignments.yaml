@@ -1,0 +1,39 @@
+id: B81FFB2C-2194-49EB-82F2-2BFC86276B3D
+name: PIMNoPIMAssignments
+description: |
+  'This query searches for no PIM assigments for user, all users with any roles should use PIM. 
+   Verify that user does not have any roles, if they do, change roles to enable PIM.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'PIMNoPIMAssignments'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

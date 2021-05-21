@@ -1,0 +1,40 @@
+id: 3976C821-BAB7-4551-A208-9706B0517FC7
+name: ConditionalAccessMobileUsersRequireApprovedApplications
+description: |
+  'This query searches for mobile users are required to use approved applications.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1410
+  - T1416
+  - T1417
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessMobileUsersRequireApprovedApplications'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

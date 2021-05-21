@@ -1,0 +1,40 @@
+id: D6C8B3CA-3582-47FC-A3A5-9C0944AB0DDD
+name: ConditionalAccessSigninRiskLevelsOfMediumOrHighShouldBeSetToMFA
+description: |
+  'This query searches for a sign-in risk represents the probability 
+   that a given authentication request isn't authorized by the identity owner.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1552
+  - T1110
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessSigninRiskLevelsOfMediumOrHighShouldBeSetToMFA'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

@@ -1,0 +1,40 @@
+id: EE6B76AC-7319-4CBF-A3A2-A99FB521CC8C
+name: ConditionalAccessReportingOnly
+description: |
+  'This query searches for conditional access policy is set to report only, 
+   rule is not in effect.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+  - T1110
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConditionalAccessReportingOnly'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

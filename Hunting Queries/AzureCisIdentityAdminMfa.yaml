@@ -1,0 +1,41 @@
+id: C786E767-79A8-46D5-9941-4D1CDCB22CCE
+name: AzureCisIdentityAdminMfa
+description: |
+  'This query searches for admin accounts without MFA enabled are a potential vulnerability in your network. 
+   Administrator accounts without MFA can be a a vulnerability to your network.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1098
+  - T1110
+  - T1078
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'AzureCisIdentityAdminMfa'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

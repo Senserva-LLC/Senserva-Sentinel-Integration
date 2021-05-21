@@ -1,20 +1,39 @@
-id: 54F23B1D-F8D3-46C5-85F9-24126446A688
-name: Azure secure score PW age policy new
+id: F183E6B6-1933-444F-A501-8D6AED3EB1E9
+name: AzureSecureScorePWAgePolicyNew
 description: |
-  'This query searches for having found that when periodic password resets are enforced,
-   passwords become less secure. Users tend to pick a weaker password and vary it slightly for each reset.'
+  'This query searches for You must have the Global Admin role in order to change this policy.'
+severity: Medium
 requiredDataConnectors:
   - connectorId: SenservaPro
     dataTypes:
       - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
 tactics:
-  - CredentialAccess
+  - InitialAccess
 relevantTechniques:
-  - T1555
-  - T1606
-  - T1040
+  - T1098
+  - T1110
 query: |
-  let timeframe = 14d;
   SenservaPro_CL
-  | where TimeGenerated >= ago(timeframe)
   | where ControlName_s == 'AzureSecureScorePWAgePolicyNew'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

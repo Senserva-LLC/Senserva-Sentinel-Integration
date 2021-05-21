@@ -1,0 +1,42 @@
+id: 18CB49BE-5DE0-433A-985D-6E1753021A6F
+name: ConfigurationStateAzureADDeletedGroupsList
+description: |
+  'This query searches for audit the deleted groups in your tenant. 
+   These Deleted Groups can still be recovered and used to infiltrate your network.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1087
+  - T1098
+  - T1136
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADDeletedGroupsList'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

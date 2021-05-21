@@ -1,0 +1,40 @@
+id: 5F78FC7C-370B-485E-9B3C-50C05A667D38
+name: ServicePrincipalPermissionRecentlyGranted
+description: |
+  'This query searches for This Service Principal is identified to
+   have been recently been granted permissions. The time frame used is calculated 
+   but you are advised to review.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ServicePrincipalPermissionRecentlyGranted'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

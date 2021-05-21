@@ -1,0 +1,49 @@
+id: DC98B586-9DA6-45C0-B6DA-0CC9EC6EF6C1
+name: ControlsSeverityGreatThenWarning
+description: |
+  'This query searches for Senserva collection order by severity greater than warning.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1518 
+query: |
+  SenservaPro_CL
+  | extend Severity = case(
+       CEFLoggingLevel_d == 0, "Debug",
+       CEFLoggingLevel_d == 1, "Informational",
+       CEFLoggingLevel_d == 2, "Notice",
+       CEFLoggingLevel_d == 3, "Warning",
+       CEFLoggingLevel_d == 4, "Errors",
+       CEFLoggingLevel_d == 5, "High",
+       CEFLoggingLevel_d == 6, "Alert",
+       CEFLoggingLevel_d == 7, "Emergency", 
+                         "Na")
+  | where TimeGenerated > ago(1d)
+  | where CEFLoggingLevel_d > 3
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

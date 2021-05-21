@@ -1,0 +1,43 @@
+id: 0BB6800E-184D-41E9-B78A-D47E76DB19B5
+name: SenservaControlBasket
+description: |
+  'This query searches for frequency patterns in the data to find the most show up combination of TenantId_s, ControlName_s, Group_s, ScanTime_t.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1518 
+query: |
+  SenservaPro_CL
+    | where TimeGenerated >= ago(10d)
+    | project TenantId_s
+            , ControlName_s
+            , Group_s
+            , ScanTime_t
+    | evaluate basket()
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

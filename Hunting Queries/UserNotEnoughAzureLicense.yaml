@@ -1,0 +1,38 @@
+id: 82D110CA-456B-42DF-B555-9409C0350335
+name: UserNoEnoughAzureLicense
+description: |
+  'This query searches for a tenant should have Azure Active Directory Premium P2 License or equivalent for complete security.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T562.007
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'UserNoEnoughAzureLicense'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

@@ -1,0 +1,40 @@
+id: 4B86EF8E-A7F7-43BB-9F87-CD2191F2B618
+name: ServicePrincipalDirectGroupMembership
+description: |
+  'This query searches for this list encompasses the groups 
+   that the Service Principal has Direct Membership to.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1528
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ServicePrincipalDirectGroupMembership'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

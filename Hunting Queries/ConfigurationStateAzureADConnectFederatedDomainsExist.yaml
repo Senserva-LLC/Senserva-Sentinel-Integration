@@ -1,0 +1,44 @@
+id: B4118DE8-E22D-47DF-8205-1D7509A38D64
+name: ConfigurationStateAzureADConnectFederatedDomainsExist
+description: |
+  'This query searches for Azure AD Connect with Federated Domains can be a threat vector in your organization, 
+   so should be minimized in number where possible. The authentication of your organizations user logins is done 
+   by a entity other than Microsoft 365.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1482
+  - T1484
+  - T1558
+  - T1562
+  - T1606
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADConnectFederatedDomainsExist'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

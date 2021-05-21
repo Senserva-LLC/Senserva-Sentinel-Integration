@@ -1,0 +1,40 @@
+id: 7CD02728-F2E9-4C0D-B718-4D90F1E6E1EF
+name: ConfigurationStateAzureADLimitGuestViewDirectoryObjects
+description: |
+  'This query searches for Limiting the View of Guests on your Microsoft 365 Roles and Groups. 
+   The View of these Guests should be limited to only what they have been directly assigned to.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAzureADLimitGuestViewDirectoryObjects'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

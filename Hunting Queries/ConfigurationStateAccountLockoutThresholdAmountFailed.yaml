@@ -1,0 +1,40 @@
+id: E39D9F5A-2DAD-4C48-BD37-54EB8F1112C7
+name: ConfigurationStateAccountLockoutThresholdAmountFailed
+description: |
+  'This query searches for smart Lockout Threshold Too small.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1078
+  - T1098
+  - T1110
+query: |
+  SenservaPro_CL
+  | where ControlName_s == 'ConfigurationStateAccountLockoutThresholdAmountFailed'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

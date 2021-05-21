@@ -1,18 +1,39 @@
-id: 0810700D-F0E9-44AE-874F-45985921EFDE
-name: Azure secure score integrated apps
+id: D8991620-D0A3-46D5-8538-211294764712
+name: AzureSecureScoreIntegratedApps
 description: |
-  'This query searches for your services by regulating the access of third-party integrated apps. 
-  Only allow access to necessary apps that support robust security controls.'
+  'This query searches for This is the same as Azure CIS 1.9.'
+severity: Medium
 requiredDataConnectors:
   - connectorId: SenservaPro
     dataTypes:
       - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
 tactics:
-  - Exfiltration
+  - InitialAccess
 relevantTechniques:
-  - T1020
+  - T1078
+  - T1098
 query: |
-  let timeframe = 14d;
   SenservaPro_CL
-  | where TimeGenerated >= ago(timeframe)
   | where ControlName_s == 'AzureSecureScoreIntegratedApps'
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  

@@ -1,0 +1,50 @@
+id: 333554E6-ABE7-4A2E-8C5A-7A09CA06E2F4
+name: AllControlsOrderBySeverity
+description: |
+  'This query searches for Senserva collection order by severity.'
+severity: Medium
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+queryFrequency: 6h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1518 
+query: |
+  SenservaPro_CL
+  | where TimeGenerated > ago(1d)
+  | order by CEFLoggingLevel_d
+  | extend Severity = case(
+       CEFLoggingLevel_d == 0, "Debug",
+       CEFLoggingLevel_d == 1, "Informational",
+       CEFLoggingLevel_d == 2, "Notice",
+       CEFLoggingLevel_d == 3, "Warning",
+       CEFLoggingLevel_d == 4, "Errors",
+       CEFLoggingLevel_d == 5, "High",
+       CEFLoggingLevel_d == 6, "Alert",
+       CEFLoggingLevel_d == 7, "Emergency", 
+                         "Na")
+  | project TimeGenerated, Control_Name = ControlName_s, Severity, Senserva_Tags = Value_s, Description = Description_s 
+entityMappings:
+  - entityType: Account
+    fieldMappings:
+      - identifier: Name
+        columnName: ControlName_s
+      - identifier: AadTenantId
+        columnName: TenantId
+      - identifier: DisplayName
+        columnName: Tenant_TenantDisplayName_s 
+  - entityType: SecurityGroup
+    fieldMappings:
+      - identifier: DistinguishedName
+        columnName: Group_s
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: SourceSystem 
+  
