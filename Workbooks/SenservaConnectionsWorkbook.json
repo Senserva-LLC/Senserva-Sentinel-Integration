@@ -1,0 +1,305 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "## Senserva Connections Workbook\n---\n\nWelcome to the Senserva Connections workbook. This workbook serves to use the data from your Senserva Scanner to show the relationships that exist between your Azure Active Directory Objects. These relationships will be membership, ownership, and permission. "
+      },
+      "name": "text - 2"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals where permission has been granted to all users"
+      },
+      "name": "text - 3"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalPermissionGrantTenant'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalTenantPermissionGrantList\"\r\n  | extend TenantList = parse_json(JSON.Val), AllUsers=\"All Users\"\r\n  | mv-expand TenantList\r\n  | extend ServicePrincipal=tostring(TenantList.Item1), Tenant=TenantId_s\r\n  | distinct ServicePrincipal, AllUsers, Tenant;\r\nValTenant",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal Permission Grant - All Users"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals where permission has been granted to a particular user"
+      },
+      "name": "text - 4"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalPermissionGrantTenant'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ApplicationName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalUserPermissionGrantList\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project UserName=TenantList.Item1, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValUser \r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(UserName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal Permission Grant - User"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals where permission has been granted to an unknown object"
+      },
+      "name": "text - 5"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalPermissionGrantTenant'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ApplicationName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalUnknownObjectPermissionGrantList\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project UnknownId=TenantList.Item1, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValUser \r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(UnknownId), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal Permission Grant - Unknown"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have directly been assigned membership to a Group"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalDirectGroupMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project GroupName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValGroup \r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(GroupName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Group Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have directly been assigned membership to a Role"
+      },
+      "name": "text - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValRole = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalDirectRoleMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project RoleName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValRole \r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(RoleName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Role Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have directly been assigned membership to an Unknown Object"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValUnknown = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalDirectUnknownMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project UnknownName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValUnknown\r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(UnknownName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Unknown Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have indirectly been assigned membership to a Group"
+      },
+      "name": "text - 13"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalIndirectGroupMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project GroupName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValGroup\r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(GroupName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Indirect Group Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have indirectly been assigned membership to a Role"
+      },
+      "name": "text - 15"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValRole = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalIndirectRoleMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project RoleName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValRole\r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(RoleName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Indirect Role Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Service Principals that have indirectly been assigned membership to an Unknown Object"
+      },
+      "name": "text - 17"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'ServicePrincipalMembership'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValTenant = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalName\"\r\n  | extend AppName = JSON.Val\r\n  | project ServicePrincipal=AppName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValUnknown = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalIndirectUnknownMember\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project UnknownName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValTenant \r\n  | join ValUnknown\r\n    on TimeGenerated\r\n  | distinct tostring(ServicePrincipal), tostring(UnknownName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Service Principal - Indirect Unknown Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Users that have directly been assigned membership to a Group"
+      },
+      "name": "text - 19"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'UserMembers'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"UserName\"\r\n  | extend UserName = JSON.Val\r\n  | project User=UserName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupMemberUser\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project GroupName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValUser \r\n  | join ValGroup\r\n    on TimeGenerated\r\n  | distinct tostring(User), tostring(GroupName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "User - Group Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Users that have directly been assigned membership to a Role"
+      },
+      "name": "text - 21"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'UserMembers'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"UserName\"\r\n  | extend UserName = JSON.Val\r\n  | project User=UserName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValRole = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"RoleMemberUser\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project RoleName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValUser \r\n  | join ValRole\r\n    on TimeGenerated\r\n  | distinct tostring(User), tostring(RoleName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "User - Role Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Groups that have directly been assigned membership to another Group"
+      },
+      "name": "text - 23"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'GroupMembers'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupName\"\r\n  | extend GroupName = JSON.Val\r\n  | project Group=GroupName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValOtherGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupMemberGroup\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project OtherGroupName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValGroup \r\n  | join ValOtherGroup\r\n    on TimeGenerated\r\n  | distinct tostring(Group), tostring(OtherGroupName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Group - Group Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Groups that have directly been assigned membership to another Group"
+      },
+      "name": "text - 25"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'GroupMembers'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValGroup = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupName\"\r\n  | extend GroupName = JSON.Val\r\n  | project Group=GroupName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValRole = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupMemberRole\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project RoleName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValGroup \r\n  | join ValRole\r\n    on TimeGenerated\r\n  | distinct tostring(Group), tostring(RoleName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "Group - Role Membership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Users that have been assigned ownership to a Group"
+      },
+      "name": "text - 27"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'UserOwners'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"UserName\"\r\n  | extend UserName = JSON.Val\r\n  | project User=UserName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValRole = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"GroupOwners\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project RoleName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValUser \r\n  | join ValRole\r\n    on TimeGenerated\r\n  | distinct tostring(User), tostring(RoleName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "User - Group Ownership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Users that have been assigned ownership to an Application"
+      },
+      "name": "text - 29"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'UserOwners'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"UserName\"\r\n  | extend UserName = JSON.Val\r\n  | project User=UserName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValApp = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ApplicationOwner\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project AppName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValUser \r\n  | join ValApp\r\n    on TimeGenerated\r\n  | distinct tostring(User), tostring(AppName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "User - Application Ownership"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### This next query shows Users that have been assigned ownership to a Service Principal"
+      },
+      "name": "text - 31"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let DataSet = SenservaPro_CL\r\n  | where TimeGenerated > ago(7d)\r\n  | where ControlName_s == 'UserOwners'\r\n  | extend values =tostring(parse_json(Value_s)) \r\n  | extend JSON = todynamic(values) \r\n  | order by TimeGenerated desc\r\n  | project TimeGenerated, TenantId_s, JSON;\r\nlet ValUser = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"UserName\"\r\n  | extend UserName = JSON.Val\r\n  | project User=UserName, Tenant=TenantId_s, TimeGenerated;\r\nlet ValApp = DataSet\r\n  | mv-expand JSON\r\n  | where JSON.Tag == \"ServicePrincipalOwner\"\r\n  | extend TenantList = parse_json(JSON.Val)\r\n  | mv-expand TenantList\r\n  | project AppName=TenantList.Name, Tenant=TenantId_s, TimeGenerated;\r\nlet FinalResult = ValUser \r\n  | join ValApp\r\n    on TimeGenerated\r\n  | distinct tostring(User), tostring(AppName), Tenant;\r\nFinalResult",
+        "size": 0,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "User - Service Principal Ownership"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/f1f99a67-a648-41d4-ab55-cef0e83e50af/resourcegroups/devresources/providers/microsoft.operationalinsights/workspaces/loganalyticssenservatest"
+  ],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
