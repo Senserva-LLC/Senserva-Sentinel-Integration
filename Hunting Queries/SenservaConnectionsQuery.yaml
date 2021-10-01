@@ -1,0 +1,17 @@
+id: 4ee5940685db4141bd7639d6a41cf15c
+name: Senserva - Azure Conenctions Query
+description: |
+  'This query searches for data that enumerates connections that exist between Azure AD objects.'
+requiredDataConnectors:
+  - connectorId: SenservaPro
+    dataTypes:
+      - SenservaPro_CL
+tactics:
+  - Discovery
+query: |
+  SenservaPro_CL
+  | where TimeGenerated > ago(7d)
+  | where (ControlName_s == 'ServicePrincipalPermissionGrantTenant' or ControlName_s == 'ApplicationPermissionGrantTenant' or ControlName_s == 'ServicePrincipalMembership' or ControlName_s == 'UserMembers' or ControlName_s =='UserOwners' or ControlName_s =='GroupMembers') 
+  | extend values =tostring(parse_json(Value_s)) 
+  | extend JSON = todynamic(values) 
+  | order by TimeGenerated desc
